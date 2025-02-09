@@ -1,0 +1,9 @@
+services:
+  central:
+    image: reaphur:latest
+    command: central
+    container_name: central
+    environment:
+      CENTRAL_LOG_STRUCTURED: true 
+    ports:
+      - "9001:9001"

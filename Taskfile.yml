@@ -3,7 +3,7 @@ version: '3'
 tasks:
   build:
     cmds:
-      - go build -o builds/ .
+      - CGO_ENABLED=0 GOOS=linux go build -o builds/ .
 
   test:
     vars:

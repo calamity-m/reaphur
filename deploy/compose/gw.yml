@@ -1,0 +1,9 @@
+services:
+  gw:
+    image: reaphur:latest
+    command: gw
+    container_name: gw
+    environment:
+      GW_LOG_STRUCTURED: true 
+    ports:
+      - "9002:9002"

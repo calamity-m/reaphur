@@ -55,6 +55,7 @@ func (s *MemoryFoodStore) GetFoods(filter FoodRecordEntry) ([]FoodRecordEntry, e
 	defer s.mux.RUnlock()
 	for _, entry := range s.entries {
 		s.log.Debug("found entry", slog.Any("entry", entry))
+
 		// Check ID first as an override
 		if filter.Id != uuid.Nil && entry.Id == filter.Id {
 			// Forcefully add if we have a matching ID

@@ -1,0 +1,3 @@
+include:
+  - central.yml
+  - gw.yml
