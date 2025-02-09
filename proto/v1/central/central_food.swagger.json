@@ -193,6 +193,31 @@
       "description": "Each record must have at least a user_id and description.\nThe remaining options are all optional to maintain\nease of use by users.",
       "title": "Records represent an individual record of some food"
     },
+    "v1GetFoodFilter": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "beforeTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "afterTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "v1GetFoodRecordsRequest": {
       "type": "object",
       "properties": {
@@ -200,7 +225,7 @@
           "type": "string"
         },
         "filter": {
-          "$ref": "#/definitions/v1FoodRecord"
+          "$ref": "#/definitions/v1GetFoodFilter"
         }
       }
     },

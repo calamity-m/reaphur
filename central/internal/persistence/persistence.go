@@ -18,6 +18,15 @@ type FoodRecordEntry struct {
 	Created     time.Time
 }
 
+type FoodFilter struct {
+	Id          uuid.UUID
+	UserId      uuid.UUID
+	Name        string
+	Description string
+	BeforeTime  time.Time
+	AfterTime   time.Time
+}
+
 type FoodPersistence interface {
 	// Create a food record entry
 	CreateFood(record FoodRecordEntry) error
@@ -27,7 +36,7 @@ type FoodPersistence interface {
 	GetFood(uuid uuid.UUID) (FoodRecordEntry, error)
 	// Provided FoodRecordEntry is treated as a filter, allowing
 	// the caller to retrieve multiple food records at will.
-	GetFoods(filter FoodRecordEntry) ([]FoodRecordEntry, error)
+	GetFoods(filter FoodFilter) ([]FoodRecordEntry, error)
 	// Update the record in place
 	UpdateFood(record FoodRecordEntry) error
 	// Delete matching record

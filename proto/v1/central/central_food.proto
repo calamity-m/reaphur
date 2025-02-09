@@ -16,9 +16,18 @@ message CreateFoodRecordResponse {
   domain.v1.FoodRecord records = 1;
 }
 
+message GetFoodFilter {
+  string user_id = 1;
+  optional string id = 2;
+  optional string name = 3;
+  optional string description = 4;
+  optional google.protobuf.Timestamp before_time = 5;
+  optional google.protobuf.Timestamp after_time = 6;
+}
+
 message GetFoodRecordsRequest {
   string request_user_id = 1;
-  domain.v1.FoodRecord filter = 2;
+  GetFoodFilter filter = 2;
 }
 
 message GetFoodRecordsResponse {

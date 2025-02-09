@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/calamity-m/reaphur/pkg/errs"
 	"github.com/google/uuid"
@@ -48,7 +49,7 @@ func (s *MemoryFoodStore) GetFood(uuid uuid.UUID) (FoodRecordEntry, error) {
 
 // Provided FoodRecordEntry is treated as a filter, allowing
 // the caller to retrieve multiple food records at will.
-func (s *MemoryFoodStore) GetFoods(filter FoodRecordEntry) ([]FoodRecordEntry, error) {
+func (s *MemoryFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error) {
 	entries := make([]FoodRecordEntry, 0)
 
 	s.mux.RLock()
@@ -56,37 +57,39 @@ func (s *MemoryFoodStore) GetFoods(filter FoodRecordEntry) ([]FoodRecordEntry, e
 	for _, entry := range s.entries {
 		s.log.Debug("found entry", slog.Any("entry", entry))
 
-		// Check ID first as an override
-		if filter.Id != uuid.Nil && entry.Id == filter.Id {
-			// Forcefully add if we have a matching ID
-			entries = append(entries, entry)
-			continue
-		}
-
 		// Skip non matching user ids
 		if entry.UserId != filter.UserId {
 			continue
 		}
 
-		// Check KJ/Grams/ML only if they're non zero
-		if filter.KJ != 0 && filter.KJ != entry.KJ {
-			continue
+		if filter.Id != uuid.Nil {
+			if entry.Id != filter.Id {
+				continue
+			}
 		}
 
-		if filter.Grams != 0 && filter.Grams != entry.Grams {
-			continue
+		if filter.Name != "" {
+			if !strings.Contains(entry.Name, filter.Name) {
+				continue
+			}
 		}
 
-		if filter.ML != 0 && filter.Grams != entry.Grams {
-			continue
+		if filter.Description != "" {
+			if !strings.Contains(entry.Description, filter.Description) {
+				continue
+			}
 		}
 
-		if !strings.Contains(entry.Name, filter.Name) {
-			continue
+		if !filter.BeforeTime.IsZero() {
+			if time.Time.Before(entry.Created, filter.BeforeTime) {
+				continue
+			}
 		}
 
-		if !strings.Contains(entry.Description, filter.Description) {
-			continue
+		if !filter.AfterTime.IsZero() {
+			if time.Time.After(entry.Created, filter.AfterTime) {
+				continue
+			}
 		}
 
 		entries = append(entries, entry)

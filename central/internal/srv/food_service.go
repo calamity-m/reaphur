@@ -6,6 +6,7 @@ import (
 
 	"github.com/calamity-m/reaphur/central/internal/mapping"
 	"github.com/calamity-m/reaphur/central/internal/persistence"
+	"github.com/calamity-m/reaphur/central/internal/util"
 	"github.com/calamity-m/reaphur/pkg/errs"
 	centralproto "github.com/calamity-m/reaphur/proto/v1/central"
 	"github.com/calamity-m/reaphur/proto/v1/domain"
@@ -63,17 +64,36 @@ func (s *CentralServiceServer) GetFoodRecords(ctx context.Context, r *centralpro
 	}
 
 	// Validate and map inner record
-	filter, err := convertValidDomainFoodRecord(r.GetFilter())
+	filter, err := convertValidGetFoodFilter(r.GetFilter())
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = s.foodStore.GetFoods(filter)
+	found, err := s.foodStore.GetFoods(filter)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, errs.ErrNotImplementedYet
+	records := make([]*domain.FoodRecord, 0, len(found))
+	for _, entry := range found {
+		records = append(records, mapping.MapEntryToRecord(entry))
+	}
+
+	return &centralproto.GetFoodRecordsResponse{
+		Records: records,
+	}, nil
+}
+
+func convertValidGetFoodFilter(f *centralproto.GetFoodFilter) (persistence.FoodFilter, error) {
+
+	return persistence.FoodFilter{
+		Id:          util.ParseUUIDRegardless(f.GetId()),
+		UserId:      util.ParseUUIDRegardless(f.GetUserId()),
+		Name:        f.GetName(),
+		Description: f.GetDescription(),
+		BeforeTime:  f.GetBeforeTime().AsTime(),
+		AfterTime:   f.GetAfterTime().AsTime(),
+	}, nil
 }
 
 func convertValidDomainFoodRecord(fr *domain.FoodRecord) (persistence.FoodRecordEntry, error) {
