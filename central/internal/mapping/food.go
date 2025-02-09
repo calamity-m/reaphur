@@ -1,17 +1,36 @@
 package mapping
 
 import (
-	"fmt"
-
 	"github.com/calamity-m/reaphur/central/internal/persistence"
 	"github.com/calamity-m/reaphur/central/internal/util"
 	"github.com/calamity-m/reaphur/pkg/errs"
+	centralproto "github.com/calamity-m/reaphur/proto/v1/central"
 	"github.com/calamity-m/reaphur/proto/v1/domain"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func MapEntryToRecord(entry persistence.FoodRecordEntry) *domain.FoodRecord {
+func MapCentralProtoFoodFilterToPersistenceFoodFilter(f *centralproto.GetFoodFilter, userId string) (persistence.FoodFilter, error) {
+	if f == nil {
+		return persistence.FoodFilter{}, errs.ErrBadUserId
+	}
+
+	uuidUser, err := uuid.Parse(userId)
+	if err != nil {
+		return persistence.FoodFilter{}, errs.ErrBadUserId
+	}
+
+	return persistence.FoodFilter{
+		Id:          util.ParseUUIDRegardless(f.GetId()),
+		UserId:      uuidUser,
+		Name:        f.GetName(),
+		Description: f.GetDescription(),
+		BeforeTime:  util.ParseProtoTimestamp(f.GetBeforeTime()),
+		AfterTime:   util.ParseProtoTimestamp(f.GetAfterTime()),
+	}, nil
+}
+
+func MapPersistenceFoodRecordEntryToDomainFoodRecord(entry persistence.FoodRecordEntry) *domain.FoodRecord {
 	record := &domain.FoodRecord{
 		Id:          entry.Id.String(),
 		UserId:      entry.UserId.String(),
@@ -29,26 +48,14 @@ func MapEntryToRecord(entry persistence.FoodRecordEntry) *domain.FoodRecord {
 	return record
 }
 
-func MapRecordToEntry(record *domain.FoodRecord) (persistence.FoodRecordEntry, error) {
-	id, err := uuid.Parse(record.GetId())
-	if err != nil {
-		return persistence.FoodRecordEntry{}, fmt.Errorf("id is not a valid uuid: %w", errs.ErrInvalidRequest)
+func MapDomainFoodRecordToPersistenceFoodRecordEntry(record *domain.FoodRecord) (persistence.FoodRecordEntry, error) {
+	if record == nil {
+		return persistence.FoodRecordEntry{}, errs.ErrNilNotAllowed
 	}
 
-	userId, err := uuid.Parse(record.GetUserId())
-	if err != nil {
-		return persistence.FoodRecordEntry{}, fmt.Errorf("userid is not a valid uuid: %w", errs.ErrInvalidRequest)
+	if _, err := uuid.Parse(record.GetUserId()); err != nil {
+		return persistence.FoodRecordEntry{}, errs.ErrBadUserId
 	}
-
-	entry := MapRecordToEntryWithoutUuids(record)
-
-	entry.Id = id
-	entry.UserId = userId
-
-	return entry, nil
-}
-
-func MapRecordToEntryWithoutUuids(record *domain.FoodRecord) persistence.FoodRecordEntry {
 
 	entry := persistence.FoodRecordEntry{
 		Name:        record.Name,
@@ -70,7 +77,10 @@ func MapRecordToEntryWithoutUuids(record *domain.FoodRecord) persistence.FoodRec
 		entry.ML = record.Ml
 	}
 
-	return entry
+	entry.Id = util.ParseUUIDRegardless(record.GetId())
+	entry.UserId = util.ParseUUIDRegardless(record.GetUserId())
+
+	return entry, nil
 }
 
 func calsToKJ(cals float32) float32 {

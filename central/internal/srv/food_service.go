@@ -6,9 +6,6 @@ import (
 	"log/slog"
 
 	"github.com/calamity-m/reaphur/central/internal/mapping"
-	"github.com/calamity-m/reaphur/central/internal/persistence"
-	"github.com/calamity-m/reaphur/central/internal/util"
-	"github.com/calamity-m/reaphur/pkg/errs"
 	centralproto "github.com/calamity-m/reaphur/proto/v1/central"
 	"github.com/calamity-m/reaphur/proto/v1/domain"
 	"github.com/google/uuid"
@@ -25,7 +22,7 @@ func (s *CentralServiceServer) CreateFoodRecord(ctx context.Context, r *centralp
 	}
 
 	// Validate and map inner record
-	wanted, err := convertValidDomainFoodRecord(r.GetRecord())
+	wanted, err := mapping.MapDomainFoodRecordToPersistenceFoodRecordEntry(r.GetRecord())
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +51,7 @@ func (s *CentralServiceServer) CreateFoodRecord(ctx context.Context, r *centralp
 
 	// Send that single record off as a response
 	return &centralproto.CreateFoodRecordResponse{
-		Record: mapping.MapEntryToRecord(created),
+		Record: mapping.MapPersistenceFoodRecordEntryToDomainFoodRecord(created),
 	}, nil
 }
 
@@ -67,7 +64,7 @@ func (s *CentralServiceServer) GetFoodRecords(ctx context.Context, r *centralpro
 	}
 
 	// Validate and map inner record
-	filter, err := convertValidGetFoodFilter(r.GetFilter(), r.GetRequestUserId())
+	filter, err := mapping.MapCentralProtoFoodFilterToPersistenceFoodFilter(r.GetFilter(), r.GetRequestUserId())
 	if err != nil {
 		return nil, err
 	}
@@ -79,45 +76,10 @@ func (s *CentralServiceServer) GetFoodRecords(ctx context.Context, r *centralpro
 
 	records := make([]*domain.FoodRecord, 0, len(found))
 	for _, entry := range found {
-		records = append(records, mapping.MapEntryToRecord(entry))
+		records = append(records, mapping.MapPersistenceFoodRecordEntryToDomainFoodRecord(entry))
 	}
 
 	return &centralproto.GetFoodRecordsResponse{
 		Records: records,
 	}, nil
-}
-
-func convertValidGetFoodFilter(f *centralproto.GetFoodFilter, userId string) (persistence.FoodFilter, error) {
-
-	uuidUser, err := uuid.Parse(userId)
-	if err != nil {
-		return persistence.FoodFilter{}, err
-	}
-
-	return persistence.FoodFilter{
-		Id:          util.ParseUUIDRegardless(f.GetId()),
-		UserId:      uuidUser,
-		Name:        f.GetName(),
-		Description: f.GetDescription(),
-		BeforeTime:  util.ParseProtoTimestamp(f.GetBeforeTime()),
-		AfterTime:   util.ParseProtoTimestamp(f.GetAfterTime()),
-	}, nil
-}
-
-func convertValidDomainFoodRecord(fr *domain.FoodRecord) (persistence.FoodRecordEntry, error) {
-
-	if fr == nil {
-		return persistence.FoodRecordEntry{}, errs.ErrNilNotAllowed
-	}
-
-	if _, err := uuid.Parse(fr.GetUserId()); err != nil {
-		return persistence.FoodRecordEntry{}, errs.ErrBadUserId
-	}
-
-	entry := mapping.MapRecordToEntryWithoutUuids(fr)
-
-	entry.Id = util.ParseUUIDRegardless(fr.GetId())
-	entry.UserId = util.ParseUUIDRegardless(fr.GetUserId())
-
-	return entry, nil
 }

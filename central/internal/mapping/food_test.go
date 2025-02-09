@@ -1,163 +1,169 @@
 package mapping
 
 import (
-	"fmt"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/calamity-m/reaphur/central/internal/persistence"
+	"github.com/calamity-m/reaphur/pkg/errs"
 	"github.com/calamity-m/reaphur/proto/v1/domain"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// Performs an equals which ignores the created field
-func shallowEqualEntry(got persistence.FoodRecordEntry, want persistence.FoodRecordEntry) bool {
-	got.Created = time.Time{}
-	want.Created = time.Time{}
-
-	return reflect.DeepEqual(got, want)
+func fakeTime() time.Time {
+	tm, _ := time.Parse("Jan 2, 2006 at 3:04pm (MST)", "Feb 4, 2014 at 6:05pm (UTC)")
+	return tm
 }
 
-func TestMapRecordToEntryWithoutUuids(t *testing.T) {
+func fakeTimestamp() *timestamppb.Timestamp {
+	return timestamppb.New(fakeTime())
+}
+
+func TestMapDomainFoodRecordToPersistenceFoodRecordEntry(t *testing.T) {
 	type args struct {
-		record *domain.FoodRecord
+		Record *domain.FoodRecord
 	}
-	tests := []struct {
-		name string
-		args args
-		want persistence.FoodRecordEntry
+	SuccessTests := []struct {
+		Name string
+		Args args
+		Want persistence.FoodRecordEntry
 	}{
 		{
-			name: "KJ takes precedence",
-			args: args{&domain.FoodRecord{
+			Name: "Time is parsed",
+			Args: args{&domain.FoodRecord{
+				Time: fakeTimestamp(),
+			}},
+			Want: persistence.FoodRecordEntry{
+				Created: fakeTime(),
+			},
+		},
+		{
+			Name: "No ID is zeroed",
+			Args: args{&domain.FoodRecord{}},
+			Want: persistence.FoodRecordEntry{
+				Id: uuid.Nil,
+			},
+		},
+		{
+			Name: "Invalid ID is zeroed",
+			Args: args{&domain.FoodRecord{
+				Id: "bbbbbbbbb",
+			}},
+			Want: persistence.FoodRecordEntry{
+				Id: uuid.Nil,
+			},
+		},
+		{
+			Name: "KJ takes precedence",
+			Args: args{&domain.FoodRecord{
 				Calories: 1000,
 				Kj:       10,
 			}},
-			want: persistence.FoodRecordEntry{
+			Want: persistence.FoodRecordEntry{
 				KJ: 10,
 			},
 		},
 		{
-			name: "ML takes precedence",
-			args: args{&domain.FoodRecord{
+			Name: "ML takes precedence",
+			Args: args{&domain.FoodRecord{
 				FlOz: 100,
 				Ml:   10,
 			}},
-			want: persistence.FoodRecordEntry{
+			Want: persistence.FoodRecordEntry{
 				ML: 10,
 			},
 		},
 		{
-			name: "Grams takes precedence",
-			args: args{&domain.FoodRecord{
+			Name: "Grams takes precedence",
+			Args: args{&domain.FoodRecord{
 				Oz:    100,
 				Grams: 10,
 			}},
-			want: persistence.FoodRecordEntry{
+			Want: persistence.FoodRecordEntry{
 				Grams: 10,
 			},
 		},
 		{
-			name: "Calories can be used",
-			args: args{&domain.FoodRecord{
+			Name: "Calories can be used",
+			Args: args{&domain.FoodRecord{
 				Calories: 1000,
 			}},
-			want: persistence.FoodRecordEntry{
+			Want: persistence.FoodRecordEntry{
 				KJ: 4184,
 			},
 		},
 		{
-			name: "Fluid OZ can be used",
-			args: args{&domain.FoodRecord{
+			Name: "Fluid OZ can be used",
+			Args: args{&domain.FoodRecord{
 				FlOz: 1000,
 			}},
-			want: persistence.FoodRecordEntry{
+			Want: persistence.FoodRecordEntry{
 				ML: 29574,
 			},
 		},
 		{
-			name: "Oz can be used",
-			args: args{&domain.FoodRecord{
+			Name: "Oz can be used",
+			Args: args{&domain.FoodRecord{
 				Oz: 1000,
 			}},
-			want: persistence.FoodRecordEntry{
+			Want: persistence.FoodRecordEntry{
 				Grams: 28350,
 			},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := MapRecordToEntryWithoutUuids(tt.args.record); !shallowEqualEntry(got, tt.want) {
-				t.Errorf("MapRecordToEntryWithoutUuids() = %+v, want %+v", got, tt.want)
+	for _, tt := range SuccessTests {
+		t.Run(tt.Name, func(t *testing.T) {
+			tt.Args.Record.UserId = uuid.Nil.String()
+			got, err := MapDomainFoodRecordToPersistenceFoodRecordEntry(tt.Args.Record)
+			if err != nil {
+				t.Errorf("got unexpected err - %v", err)
+			}
+			if !reflect.DeepEqual(got, tt.Want) {
+				t.Errorf("got %v, want %v", got, tt.Want)
 			}
 		})
 	}
-}
 
-func TestMapRecordToEntry(t *testing.T) {
-	type args struct {
-		record *domain.FoodRecord
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    persistence.FoodRecordEntry
-		wantErr bool
+	failTests := []struct {
+		Name    string
+		Input   *domain.FoodRecord
+		Want    persistence.FoodRecordEntry
+		WantErr error
 	}{
 		{
-			name: "id and user id is parsed",
-			args: args{
-				&domain.FoodRecord{
-					Id:     "019458b8-2e00-7663-be30-6cb737d1ab27",
-					UserId: "999458b8-2e00-7663-be30-6cb737d1ab27",
-				},
-			},
-			wantErr: false,
-			want: persistence.FoodRecordEntry{
-				Id:     uuid.MustParse("019458b8-2e00-7663-be30-6cb737d1ab27"),
-				UserId: uuid.MustParse("999458b8-2e00-7663-be30-6cb737d1ab27"),
-			},
+			Name:    "nil input is rejected",
+			Input:   nil,
+			Want:    persistence.FoodRecordEntry{},
+			WantErr: errs.ErrNilNotAllowed,
 		},
 		{
-			name: "id is checked",
-			args: args{
-				&domain.FoodRecord{
-					Id: "bob",
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "user id is checked",
-			args: args{
-				&domain.FoodRecord{
-					Id:     "019458b8-2e00-7663-be30-6cb737d1ab27",
-					UserId: "bob",
-				},
-			},
-			wantErr: true,
+			Name:    "invalid user id is rejected",
+			Input:   &domain.FoodRecord{},
+			Want:    persistence.FoodRecordEntry{},
+			WantErr: errs.ErrBadUserId,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := MapRecordToEntry(tt.args.record)
-			if tt.wantErr && err == nil {
-				fmt.Println("???")
-				t.Fatalf("error = %+v, wantErr %+v", err, tt.wantErr)
+
+	for _, tt := range failTests {
+		t.Run(tt.Name, func(t *testing.T) {
+			got, err := MapDomainFoodRecordToPersistenceFoodRecordEntry(tt.Input)
+
+			if !errors.Is(err, tt.WantErr) {
+				t.Errorf("got %q error but wanted %q", err, tt.WantErr)
 			}
 
-			if got.Id != tt.want.Id {
-				t.Errorf("got %+v but want %+v", got.Id, tt.want.Id)
+			if !reflect.DeepEqual(got, tt.Want) {
+				t.Errorf("got %v but want %v", got, tt.Want)
 			}
-			if got.UserId != tt.want.UserId {
-				t.Errorf("got %+v but want %+v", got.Id, tt.want.Id)
-			}
+
 		})
 	}
 }
 
-func TestMapEntryToRecord(t *testing.T) {
+func TestMapPersistenceFoodRecordEntryToDomainFoodRecord(t *testing.T) {
 	type args struct {
 		entry persistence.FoodRecordEntry
 	}
@@ -170,9 +176,10 @@ func TestMapEntryToRecord(t *testing.T) {
 			name: "Imperial values are created",
 			args: args{
 				persistence.FoodRecordEntry{
-					KJ:    4184,
-					ML:    29574,
-					Grams: 28350,
+					KJ:      4184,
+					ML:      29574,
+					Grams:   28350,
+					Created: time.Time{},
 				},
 			},
 			want: &domain.FoodRecord{
@@ -184,13 +191,14 @@ func TestMapEntryToRecord(t *testing.T) {
 				Calories: 1000,
 				FlOz:     1000,
 				Oz:       1000,
+				Time:     timestamppb.New(time.Time{}),
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := MapEntryToRecord(tt.args.entry); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MapEntryToRecord() = %v, want %v", got, tt.want)
+			if got := MapPersistenceFoodRecordEntryToDomainFoodRecord(tt.args.entry); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("got %v, want %v", got, tt.want)
 			}
 		})
 	}
