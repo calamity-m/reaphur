@@ -1,0 +1,204 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "proto/v1/central/central.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "CentralService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/centralproto.v1.CentralService/ActionUserInput": {
+      "post": {
+        "summary": "Simple RPC",
+        "description": "Translates user input and actions some user input in some way that the caller cannot know.\nThe response will encode releveant information to respond to the user with, but generally\nyou cannot know exactly what actions are taken.\nThis rpc will parse user input into some structured format, and then\nlink together the services required based on that structured output.",
+        "operationId": "CentralService_ActionUserInput",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActionUserInputResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ActionUserInputRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CentralService"
+        ]
+      }
+    },
+    "/centralproto.v1.CentralService/CallFnUserInput": {
+      "post": {
+        "summary": "Simple RPC",
+        "description": "As opposed to the actioning of user input, this endpoint allows for the translator\nto actually call the functions themselves, rather than them being stitched together\nby the implementing rpc service.",
+        "operationId": "CentralService_CallFnUserInput",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CallFnUserInputResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CallFnUserInputRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CentralService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "GenericDatavalue": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "title": "Map of string key/value pairs. Receivers should handle as expected\ndepending on the key value"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ActionUserInputRequest": {
+      "type": "object",
+      "properties": {
+        "requestUserId": {
+          "type": "string"
+        },
+        "requestUserInput": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ActionUserInputResponse": {
+      "type": "object",
+      "properties": {
+        "responseMessage": {
+          "type": "string",
+          "title": "Message that can be displayed back to the user\nwith no further processing over formatting"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1GenericData"
+          },
+          "title": "Potential response data"
+        }
+      }
+    },
+    "v1CallFnUserInputRequest": {
+      "type": "object",
+      "properties": {
+        "requestUserId": {
+          "type": "string"
+        },
+        "requestUserInput": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CallFnUserInputResponse": {
+      "type": "object",
+      "properties": {
+        "responseMessage": {
+          "type": "string",
+          "title": "Message that can be displayed back to the user\nwith no further processing over formatting"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1GenericData"
+          },
+          "title": "Potential response data"
+        }
+      }
+    },
+    "v1GenericData": {
+      "type": "object",
+      "properties": {
+        "dataUniqueId": {
+          "type": "string",
+          "title": "Globally unique identifier"
+        },
+        "dataValues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/GenericDatavalue"
+          },
+          "description": "Potential data values returned, this is not always determined to\nbe fully formed with all relevant data values and may only hold\na subset."
+        }
+      },
+      "title": "Encodes some generic unstructured data with a unique identifer"
+    }
+  }
+}

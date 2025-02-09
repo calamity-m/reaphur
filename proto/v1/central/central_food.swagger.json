@@ -1,0 +1,220 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "proto/v1/central/central_food.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "CentralFoodService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/centralproto.v1.CentralFoodService/CreateFoodRecord": {
+      "post": {
+        "summary": "Simple RPC",
+        "description": "Create some food record in the food diary/journal",
+        "operationId": "CentralFoodService_CreateFoodRecord",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateFoodRecordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateFoodRecordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CentralFoodService"
+        ]
+      }
+    },
+    "/centralproto.v1.CentralFoodService/GetFoodRecords": {
+      "post": {
+        "summary": "Simple RPC",
+        "description": "Fetch some food records from the food diary/journal",
+        "operationId": "CentralFoodService_GetFoodRecords",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetFoodRecordsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetFoodRecordsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CentralFoodService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateFoodRecordRequest": {
+      "type": "object",
+      "properties": {
+        "requestUserId": {
+          "type": "string"
+        },
+        "record": {
+          "$ref": "#/definitions/v1FoodRecord"
+        }
+      }
+    },
+    "v1CreateFoodRecordResponse": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "$ref": "#/definitions/v1FoodRecord"
+        }
+      }
+    },
+    "v1FoodRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Id of this record. Should be a UUID in string encoding."
+        },
+        "userId": {
+          "type": "string",
+          "description": "User that owns this record. Should be a UUID in string\nencoding."
+        },
+        "description": {
+          "type": "string",
+          "title": "Friendly description of this food record, or what was eaten,\ni.e. \"chicken parma with some veggies\""
+        },
+        "name": {
+          "type": "string",
+          "description": "A specific mapping name of some meal or object that can be\nreferenced for nutritional information later, i.e. \"kellog's nutrigrain\"."
+        },
+        "kj": {
+          "type": "number",
+          "format": "float",
+          "description": "Kilojules.\n\nkj will always take priority over the imperial \"calories\""
+        },
+        "ml": {
+          "type": "number",
+          "format": "float",
+          "description": "ml will always take priority over the imperial \"fl_oz\"",
+          "title": "Milliliters"
+        },
+        "grams": {
+          "type": "number",
+          "format": "float",
+          "description": "grams will always take priority over the imperial \"oz\"",
+          "title": "Grams, 1/1000 of a kg"
+        },
+        "calories": {
+          "type": "number",
+          "format": "float",
+          "title": "Known as calories but effectively kilocalorie.\n(I hate imperial)"
+        },
+        "flOz": {
+          "type": "number",
+          "format": "float",
+          "title": "Fluid Ounce"
+        },
+        "oz": {
+          "type": "number",
+          "format": "float",
+          "title": "Ounce"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time that this was recorded. If none is provided, the time should be generated\nby the GRPC service."
+        }
+      },
+      "description": "Each record must have at least a user_id and description.\nThe remaining options are all optional to maintain\nease of use by users.",
+      "title": "Records represent an individual record of some food"
+    },
+    "v1GetFoodRecordsRequest": {
+      "type": "object",
+      "properties": {
+        "requestUserId": {
+          "type": "string"
+        },
+        "filter": {
+          "$ref": "#/definitions/v1FoodRecord"
+        }
+      }
+    },
+    "v1GetFoodRecordsResponse": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FoodRecord"
+          }
+        }
+      }
+    }
+  }
+}

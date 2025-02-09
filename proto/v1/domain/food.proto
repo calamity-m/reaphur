@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package domain.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/calamity-m/reaphur/proto/v1/domain";
+
+// Records represent an individual record of some food
+//
+// Each record must have at least a user_id and description.
+// The remaining options are all optional to maintain
+// ease of use by users.
+message FoodRecord {
+  // Unique Id of this record. Should be a UUID in string encoding.
+  string id = 1;
+  // User that owns this record. Should be a UUID in string
+  // encoding.
+  string user_id = 2;
+  // Friendly description of this food record, or what was eaten,
+  // i.e. "chicken parma with some veggies"
+  string description = 3;
+  // A specific mapping name of some meal or object that can be
+  // referenced for nutritional information later, i.e. "kellog's nutrigrain".
+  string name = 4;
+  // Kilojules.
+  //
+  // kj will always take priority over the imperial "calories"
+  float kj = 5;
+  // Milliliters
+  //
+  // ml will always take priority over the imperial "fl_oz"
+  float ml = 6;
+  // Grams, 1/1000 of a kg
+  //
+  // grams will always take priority over the imperial "oz"
+  float grams = 7;
+  // Known as calories but effectively kilocalorie.
+  // (I hate imperial)
+  float calories = 8;
+  // Fluid Ounce
+  float fl_oz = 9;
+  // Ounce
+  float oz = 10;
+  // Time that this was recorded. If none is provided, the time should be generated
+  // by the GRPC service.
+  google.protobuf.Timestamp time = 11;
+}

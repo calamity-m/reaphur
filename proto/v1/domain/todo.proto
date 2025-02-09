@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package domain.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/calamity-m/reaphur/proto/v1/domain";
+
+// Records represent something the user wants to do, ala simple todo app lol
+//
+// Each record must have at least a user_id and description.
+// The remaining options are all optional to maintain
+// ease of use by users.
+message TodoRecord {
+  // Unique Id of this record. Should be a UUID in string encoding.
+  string id = 1;
+  // User that owns this record. Should be a UUID in string
+  // encoding.
+  string user_id = 2;
+  // Friendly description of this todo record
+  string description = 3;
+  // A shorthand of the description
+  string name = 4;
+  // Gold starts provided by the user
+  int32 gold_stars = 5;
+  // If todo is completed or not
+  bool completed = 6;
+  // Time that this todo should end
+  google.protobuf.Timestamp end_time = 7;
+  // Time that this was recorded. If none is provided, the time should be generated
+  // by the GRPC service.
+  google.protobuf.Timestamp time = 11;
+}

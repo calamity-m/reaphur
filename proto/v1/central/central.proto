@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package centralproto.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/calamity-m/reaphur/proto/v1/central/centralproto";
+
+// Encodes some generic unstructured data with a unique identifer
+message GenericData {
+  // Map of string key/value pairs. Receivers should handle as expected
+  // depending on the key value
+  message value {
+    string key = 1;
+    string value = 2;
+  }
+
+  // Globally unique identifier
+  string data_unique_id = 1;
+  // Potential data values returned, this is not always determined to
+  // be fully formed with all relevant data values and may only hold
+  // a subset.
+  repeated value data_values = 2;
+}
+
+message ActionUserInputRequest {
+  string request_user_id = 1;
+  string request_user_input = 2;
+}
+
+message ActionUserInputResponse {
+  // Message that can be displayed back to the user
+  // with no further processing over formatting
+  string response_message = 1;
+  // Potential response data
+  repeated GenericData data = 2;
+}
+
+message CallFnUserInputRequest {
+  string request_user_id = 1;
+  string request_user_input = 2;
+}
+
+message CallFnUserInputResponse {
+  // Message that can be displayed back to the user
+  // with no further processing over formatting
+  string response_message = 1;
+  // Potential response data
+  repeated GenericData data = 2;
+}
+
+service CentralService {
+  // Simple RPC
+  //
+  // Translates user input and actions some user input in some way that the caller cannot know.
+  // The response will encode releveant information to respond to the user with, but generally
+  // you cannot know exactly what actions are taken.
+  // This rpc will parse user input into some structured format, and then
+  // link together the services required based on that structured output.
+  rpc ActionUserInput(ActionUserInputRequest) returns (ActionUserInputResponse) {}
+  // Simple RPC
+  //
+  // As opposed to the actioning of user input, this endpoint allows for the translator
+  // to actually call the functions themselves, rather than them being stitched together
+  // by the implementing rpc service.
+  rpc CallFnUserInput(CallFnUserInputRequest) returns (CallFnUserInputResponse) {}
+}
