@@ -3,6 +3,7 @@ package srv
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/calamity-m/reaphur/central/internal/mapping"
 	"github.com/calamity-m/reaphur/central/internal/persistence"
@@ -17,6 +18,8 @@ import (
 //
 // Create some food record in the food diary/journal
 func (s *CentralServiceServer) CreateFoodRecord(ctx context.Context, r *centralproto.CreateFoodRecordRequest) (*centralproto.CreateFoodRecordResponse, error) {
+	s.logger.DebugContext(ctx, "received create food record request", slog.Any("request", r), slog.Any("request_record", r.GetRecord()))
+
 	if err := s.commonServiceValidation(); err != nil {
 		return nil, err
 	}
@@ -51,7 +54,7 @@ func (s *CentralServiceServer) CreateFoodRecord(ctx context.Context, r *centralp
 
 	// Send that single record off as a response
 	return &centralproto.CreateFoodRecordResponse{
-		Records: mapping.MapEntryToRecord(created),
+		Record: mapping.MapEntryToRecord(created),
 	}, nil
 }
 
@@ -64,7 +67,7 @@ func (s *CentralServiceServer) GetFoodRecords(ctx context.Context, r *centralpro
 	}
 
 	// Validate and map inner record
-	filter, err := convertValidGetFoodFilter(r.GetFilter())
+	filter, err := convertValidGetFoodFilter(r.GetFilter(), r.GetRequestUserId())
 	if err != nil {
 		return nil, err
 	}
@@ -84,23 +87,31 @@ func (s *CentralServiceServer) GetFoodRecords(ctx context.Context, r *centralpro
 	}, nil
 }
 
-func convertValidGetFoodFilter(f *centralproto.GetFoodFilter) (persistence.FoodFilter, error) {
+func convertValidGetFoodFilter(f *centralproto.GetFoodFilter, userId string) (persistence.FoodFilter, error) {
+
+	uuidUser, err := uuid.Parse(userId)
+	if err != nil {
+		return persistence.FoodFilter{}, err
+	}
 
 	return persistence.FoodFilter{
 		Id:          util.ParseUUIDRegardless(f.GetId()),
-		UserId:      util.ParseUUIDRegardless(f.GetUserId()),
+		UserId:      uuidUser,
 		Name:        f.GetName(),
 		Description: f.GetDescription(),
-		BeforeTime:  f.GetBeforeTime().AsTime(),
-		AfterTime:   f.GetAfterTime().AsTime(),
+		BeforeTime:  util.ParseProtoTimestamp(f.GetBeforeTime()),
+		AfterTime:   util.ParseProtoTimestamp(f.GetAfterTime()),
 	}, nil
 }
 
 func convertValidDomainFoodRecord(fr *domain.FoodRecord) (persistence.FoodRecordEntry, error) {
-	conv := persistence.FoodRecordEntry{}
 
 	if fr == nil {
-		return conv, errs.ErrNilNotAllowed
+		return persistence.FoodRecordEntry{}, errs.ErrNilNotAllowed
+	}
+
+	if _, err := uuid.Parse(fr.GetUserId()); err != nil {
+		return persistence.FoodRecordEntry{}, errs.ErrBadUserId
 	}
 
 	entry := mapping.MapRecordToEntryWithoutUuids(fr)

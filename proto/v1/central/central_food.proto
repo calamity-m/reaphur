@@ -8,21 +8,19 @@ import "proto/v1/domain/food.proto";
 option go_package = "github.com/calamity-m/reaphur/proto/v1/centralproto";
 
 message CreateFoodRecordRequest {
-  string request_user_id = 1;
-  domain.v1.FoodRecord record = 2;
+  domain.v1.FoodRecord record = 1;
 }
 
 message CreateFoodRecordResponse {
-  domain.v1.FoodRecord records = 1;
+  domain.v1.FoodRecord record = 1;
 }
 
 message GetFoodFilter {
-  string user_id = 1;
-  optional string id = 2;
-  optional string name = 3;
-  optional string description = 4;
-  optional google.protobuf.Timestamp before_time = 5;
-  optional google.protobuf.Timestamp after_time = 6;
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional google.protobuf.Timestamp before_time = 4;
+  optional google.protobuf.Timestamp after_time = 5;
 }
 
 message GetFoodRecordsRequest {

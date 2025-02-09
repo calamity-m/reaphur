@@ -49,7 +49,7 @@ var (
 				cfg,
 				parser.NewOpenAIParser(logger, oa),
 				fncall.NewOpenAIFnCaller(logger, oa),
-				persistence.NewMemoryFoodStore(),
+				persistence.NewMemoryFoodStore(logger),
 			)
 			if err != nil {
 				logger.Error("failed to run server", slog.Any("err", err))

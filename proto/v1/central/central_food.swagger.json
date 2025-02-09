@@ -117,9 +117,6 @@
     "v1CreateFoodRecordRequest": {
       "type": "object",
       "properties": {
-        "requestUserId": {
-          "type": "string"
-        },
         "record": {
           "$ref": "#/definitions/v1FoodRecord"
         }
@@ -128,7 +125,7 @@
     "v1CreateFoodRecordResponse": {
       "type": "object",
       "properties": {
-        "records": {
+        "record": {
           "$ref": "#/definitions/v1FoodRecord"
         }
       }
@@ -196,9 +193,6 @@
     "v1GetFoodFilter": {
       "type": "object",
       "properties": {
-        "userId": {
-          "type": "string"
-        },
         "id": {
           "type": "string"
         },

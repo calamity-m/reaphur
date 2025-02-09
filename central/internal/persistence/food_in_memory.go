@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
@@ -20,6 +21,14 @@ type MemoryFoodStore struct {
 func (s *MemoryFoodStore) CreateFood(record FoodRecordEntry) error {
 	s.mux.Lock()
 	defer s.mux.Unlock()
+
+	if _, ok := s.entries[record.Id.String()]; ok {
+		return fmt.Errorf("record already exists for id - %w", errs.ErrBadId)
+	}
+
+	if record.Created.IsZero() {
+		record.Created = time.Now()
+	}
 
 	s.entries[record.Id.String()] = record
 
@@ -55,39 +64,44 @@ func (s *MemoryFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error)
 	s.mux.RLock()
 	defer s.mux.RUnlock()
 	for _, entry := range s.entries {
-		s.log.Debug("found entry", slog.Any("entry", entry))
 
 		// Skip non matching user ids
 		if entry.UserId != filter.UserId {
+			s.log.Debug("skipping entry due to user id filter", slog.Any("entry", entry), slog.Any("filter", filter))
 			continue
 		}
 
 		if filter.Id != uuid.Nil {
 			if entry.Id != filter.Id {
+				s.log.Debug("skipping entry due to id filter", slog.Any("entry", entry), slog.Any("filter", filter))
 				continue
 			}
 		}
 
 		if filter.Name != "" {
 			if !strings.Contains(entry.Name, filter.Name) {
+				s.log.Debug("skipping entry due to name filter", slog.Any("entry", entry), slog.Any("filter", filter))
 				continue
 			}
 		}
 
 		if filter.Description != "" {
 			if !strings.Contains(entry.Description, filter.Description) {
-				continue
-			}
-		}
-
-		if !filter.BeforeTime.IsZero() {
-			if time.Time.Before(entry.Created, filter.BeforeTime) {
+				s.log.Debug("skipping entry due to description filter", slog.Any("entry", entry), slog.Any("filter", filter))
 				continue
 			}
 		}
 
 		if !filter.AfterTime.IsZero() {
-			if time.Time.After(entry.Created, filter.AfterTime) {
+			if time.Time.Before(entry.Created, filter.AfterTime) {
+				s.log.Debug("skipping entry due to before time filter", slog.Any("entry", entry), slog.Any("filter", filter))
+				continue
+			}
+		}
+
+		if !filter.BeforeTime.IsZero() {
+			if time.Time.After(entry.Created, filter.BeforeTime) {
+				s.log.Debug("skipping entry due to after time filter", slog.Any("entry", entry), slog.Any("filter", filter))
 				continue
 			}
 		}
@@ -123,7 +137,10 @@ func (s *MemoryFoodStore) DeleteFood(uuid uuid.UUID) error {
 	return nil
 }
 
-func NewMemoryFoodStore() *MemoryFoodStore {
+func NewMemoryFoodStore(logger *slog.Logger) *MemoryFoodStore {
+	if logger == nil {
+		logger = slog.Default()
+	}
 	entries := make(map[string]FoodRecordEntry, 0)
-	return &MemoryFoodStore{entries: entries}
+	return &MemoryFoodStore{entries: entries, log: logger}
 }

@@ -32,7 +32,15 @@ tasks:
   proto-v1-remove:
     cmds:
       - rm -rf proto/v1/*/*.pb.go
+      - rm -rf proto/v1/*/*.swagger.*
+      - rm -rf proto/v1/*/*gw.go
 
+  run-central:
+    cmds:
+      - go run main.go central
   
+  run-gw:
+    cmds:
+      - go run main.go gw
         
     

@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"github.com/calamity-m/reaphur/central/internal/persistence"
+	"github.com/calamity-m/reaphur/central/internal/util"
 	"github.com/calamity-m/reaphur/pkg/errs"
 	"github.com/calamity-m/reaphur/proto/v1/domain"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func MapEntryToRecord(entry persistence.FoodRecordEntry) *domain.FoodRecord {
@@ -21,6 +23,7 @@ func MapEntryToRecord(entry persistence.FoodRecordEntry) *domain.FoodRecord {
 		Calories:    kjToCals(entry.KJ),
 		Oz:          gramsToOz(entry.Grams),
 		FlOz:        mlToFLOz(entry.ML),
+		Time:        timestamppb.New(entry.Created),
 	}
 
 	return record
@@ -46,13 +49,14 @@ func MapRecordToEntry(record *domain.FoodRecord) (persistence.FoodRecordEntry, e
 }
 
 func MapRecordToEntryWithoutUuids(record *domain.FoodRecord) persistence.FoodRecordEntry {
+
 	entry := persistence.FoodRecordEntry{
 		Name:        record.Name,
 		Description: record.Description,
 		KJ:          calsToKJ(record.Calories),
 		ML:          flOzToML(record.FlOz),
 		Grams:       ozToGrams(record.Oz),
-		Created:     record.Time.AsTime(),
+		Created:     util.ParseProtoTimestamp(record.GetTime()),
 	}
 
 	// Yucky imperial system

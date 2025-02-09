@@ -29,3 +29,6 @@ builds/
 
 # coverage files
 test/coverage/*.html
+
+# IDE
+.vscode
