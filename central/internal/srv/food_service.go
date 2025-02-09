@@ -103,13 +103,10 @@ func convertValidDomainFoodRecord(fr *domain.FoodRecord) (persistence.FoodRecord
 		return conv, errs.ErrNilNotAllowed
 	}
 
-	if fr.Id != "" {
+	entry := mapping.MapRecordToEntryWithoutUuids(fr)
 
-	}
+	entry.Id = util.ParseUUIDRegardless(fr.GetId())
+	entry.UserId = util.ParseUUIDRegardless(fr.GetUserId())
 
-	if fr.UserId != "" {
-
-	}
-
-	return conv, errs.ErrNotImplementedYet
+	return entry, nil
 }
