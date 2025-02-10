@@ -1,3 +1,11 @@
 include:
   - central.yml
   - gw.yml
+  - infra.yml
+
+services:
+  curl:
+    image: curlimages/curl:latest
+    command: tail -f /dev/null
+    container_name: curl
+    tty: true

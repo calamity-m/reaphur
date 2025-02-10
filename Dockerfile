@@ -25,8 +25,6 @@ WORKDIR /
 
 COPY --from=build-stage /reaphur /reaphur
 
-EXPOSE 8080
-
 COPY --from=0 /etc/passwd /etc/passwd
 USER nonroot
 

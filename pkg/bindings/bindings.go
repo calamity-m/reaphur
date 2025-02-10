@@ -10,6 +10,6 @@ var (
 
 // provides some nice defaults to rely on for sweet sweet enmeshment
 const (
-	DefaultCentralAddress = "localhost:9001"
-	DefaultGWAddress      = "localhost:9002"
+	DefaultCentralAddress = "127.0.0.1:9001"
+	DefaultGWAddress      = "127.0.0.1:9002"
 )
