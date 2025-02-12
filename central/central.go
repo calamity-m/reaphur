@@ -27,7 +27,7 @@ var (
 			cfg, err := conf.NewConfig(bindings.Debug)
 			if err != nil {
 				fmt.Printf("Failed to create config: %v\n", err)
-				os.Exit(1)
+				return err
 			}
 
 			// Create logger
@@ -43,13 +43,18 @@ var (
 			}))
 
 			oa := util.CreateNewOpenAIClient(cfg.AIToken)
+			foodStore, err := persistence.NewRedisFoodStore(logger, cfg)
+			if err != nil {
+				logger.Error("failed to create redis food store", slog.Any("err", err))
+				return err
+			}
 
 			server, err := srv.NewCentralServiceServer(
 				logger,
 				cfg,
 				parser.NewOpenAIParser(logger, oa),
 				fncall.NewOpenAIFnCaller(logger, oa),
-				persistence.NewMemoryFoodStore(logger),
+				foodStore,
 			)
 			if err != nil {
 				logger.Error("failed to run server", slog.Any("err", err))

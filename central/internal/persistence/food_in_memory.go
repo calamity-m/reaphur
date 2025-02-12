@@ -41,8 +41,7 @@ func (s *MemoryFoodStore) CreateFood(record FoodRecordEntry) error {
 }
 
 // Retrieve a single food record based on the
-// record's uuid. Internal DB primary key is ignored
-// by this call.
+// record's uuid.
 func (s *MemoryFoodStore) GetFood(uuid uuid.UUID) (FoodRecordEntry, error) {
 	s.mux.RLock()
 	defer s.mux.RUnlock()

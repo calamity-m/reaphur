@@ -11,17 +11,22 @@ import (
 )
 
 type Config struct {
-	// Server Configuration
+	// Logging Configuration
 	Environment   string     `mapstructure:"environment" json:"environment,omitempty"`
 	LogLevel      slog.Level `mapstructure:"log_level" json:"log_level,omitempty"`
 	LogStructured bool       `mapstructure:"log_structured" json:"log_structured,omitempty"`
 	LogAddSource  bool       `mapstructure:"log_add_source" json:"log_add_source,omitempty"`
 	LogRequestId  bool       `mapstructure:"log_request_id" json:"log_request_id,omitempty"`
-	// Listener configuration
-	Address string `mapstructure:"address" json:"address,omitempty"`
-	Reflect bool   `mapstructure:"reflect" json:"reflect,omitempty"`
+
+	// Server configuration
+	Address          string `mapstructure:"address" json:"address,omitempty"`
+	Reflect          bool   `mapstructure:"reflect" json:"reflect,omitempty"`
+	FoodRedisAddress string `mapstructure:"food_redis_address" json:"food_redis_address,omitempty"`
+
 	// Spicy
-	AIToken string `mapstructure:"ai_token" json:"-"`
+	AIToken           string `mapstructure:"ai_token" json:"-"`
+	FoodRedisPassword string `mapstructure:"food_redis_password" json:"-"`
+	FoodRedisDB       int    `mapstructure:"food_redis_db" json:"-"`
 
 	// Not filled out by viper defaults
 	GrpcServerOpts []grpc.ServerOption
@@ -45,6 +50,8 @@ func NewConfig(debug bool) (*Config, error) {
 	vip.SetDefault("log_request_id", true)
 	vip.SetDefault("address", bindings.DefaultCentralAddress)
 	vip.SetDefault("reflect", true)
+	vip.SetDefault("food_redis_password", "password")
+	vip.SetDefault("food_redis_db", 0)
 
 	// Spicy bindings
 	vip.BindEnv("ai_token")

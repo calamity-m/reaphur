@@ -12,4 +12,5 @@ var (
 const (
 	DefaultCentralAddress = "127.0.0.1:9001"
 	DefaultGWAddress      = "127.0.0.1:9002"
+	DefaultRedisAddress   = "127.0.0.1:6379"
 )

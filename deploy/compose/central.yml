@@ -6,5 +6,6 @@ services:
     environment:
       CENTRAL_LOG_STRUCTURED: true 
       CENTRAL_ADDRESS: ":9001"
+      CENTRAL_REDIS_ADDRESS: "redis:6379"
     ports:
       - "9001:9001"

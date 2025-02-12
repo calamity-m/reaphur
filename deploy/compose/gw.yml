@@ -6,5 +6,6 @@ services:
     environment:
       GW_LOG_STRUCTURED: true 
       GW_ADDRESS: ":9002"
+      GW_CENTRAL_SERVER_ADDRESS: "central:9001"
     ports:
       - "9002:9002"

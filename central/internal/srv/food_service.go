@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/calamity-m/reaphur/central/internal/mapping"
+	"github.com/calamity-m/reaphur/pkg/errs"
 	centralproto "github.com/calamity-m/reaphur/proto/v1/central"
 	"github.com/calamity-m/reaphur/proto/v1/domain"
 	"github.com/google/uuid"
@@ -21,20 +23,30 @@ func (s *CentralServiceServer) CreateFoodRecord(ctx context.Context, r *centralp
 		return nil, err
 	}
 
-	// Validate and map inner record
+	// Map inner record
 	wanted, err := mapping.MapDomainFoodRecordToPersistenceFoodRecordEntry(r.GetRecord())
 	if err != nil {
 		return nil, err
+	}
+
+	// Validate description isn't empty
+	if wanted.Description == "" {
+		return nil, fmt.Errorf("description must not be empty - %w", errs.ErrBadRequest)
 	}
 
 	// Generate a UUID id
 	if wanted.Id == uuid.Nil {
 		id, err := uuid.NewV7()
 		if err != nil {
-			return nil, fmt.Errorf("failed to generate id: %w", err)
+			return nil, fmt.Errorf("failed to generate id - %w", err)
 		}
 
 		wanted.Id = id
+	}
+
+	// Ensure a created time is set
+	if wanted.Created.IsZero() {
+		wanted.Created = time.Now()
 	}
 
 	// Create the food item
