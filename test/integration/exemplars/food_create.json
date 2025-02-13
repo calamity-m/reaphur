@@ -1,0 +1,67 @@
+{
+    "domain": "food",
+    "action": "create",
+    "endpoint": "centralproto.v1.CentralFoodService/CreateFoodRecord",
+    "exemplars": [
+        {
+            "input": {
+                "record": {
+                    "userId": "string"
+                }
+            },
+            "output": {
+                "code": 2,
+                "message": "bad user id",
+                "details": []
+            }
+        },
+        {
+            "input": {
+                "record": {
+                    "userId": ""
+                }
+            },
+            "output": {
+                "code": 2,
+                "message": "bad user id",
+                "details": []
+            }
+        },
+        {
+            "input": {
+                "record": {
+                    "userId": "14f38b85-c7f6-4d8c-bf76-81059c2a488c"
+                }
+            },
+            "output": {
+                "code": 2,
+                "message": "description must not be empty - bad request",
+                "details": []
+            }
+        },
+        {
+            "input": {
+                "record": {
+                    "userId": "14f38b85-c7f6-4d8c-bf76-81059c2a488c",
+                    "description": "test",
+                    "time": "2099-02-13T00:27:49.674347513Z"
+                }
+            },
+            "output": {
+                "record": {
+                    "id": "0194fcb5-d1af-7d28-b4ec-16a8f5507454",
+                    "userId": "14f38b85-c7f6-4d8c-bf76-81059c2a488c",
+                    "description": "test",
+                    "name": "",
+                    "kj": 0,
+                    "ml": 0,
+                    "grams": 0,
+                    "calories": 0,
+                    "flOz": 0,
+                    "oz": 0,
+                    "time": "2099-02-13T00:27:49.674347513Z"
+                }
+            }
+        }
+    ]
+}
