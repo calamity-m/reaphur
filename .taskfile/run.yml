@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+
+  central:
+    cmds:
+      - go run main.go central
+  
+  gw:
+    cmds:
+      - go run main.go gw

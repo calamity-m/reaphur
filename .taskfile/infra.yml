@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+        
+  up:
+    cmds:
+      - docker compose -f deploy/compose/infra.yml up -d
+    
+  down:
+    cmds:
+      - docker compose -f deploy/compose/infra.yml down

@@ -1,52 +1,17 @@
 version: '3'
 
-tasks:
+includes:
+  tests:
+    taskfile: ./.taskfile/test.yml
   build:
-    cmds:
-      - CGO_ENABLED=0 GOOS=linux go build -o builds/ .
+    taskfile: ./.taskfile/build.yml
+  run:
+    taskfile: ./.taskfile/run.yml
+  infra:
+    taskfile: ./.taskfile/infra.yml
 
-  test:
-    vars:
-      ARGS: '{{default "" .ARGS}}'
-    cmds:
-      - go test ./... {{.ARGS}}
-  
-  test-cov:
-    cmds:
-      - task: test
-        vars: { ARGS: '-cover -coverprofile=test/coverage/coverage.html' }
-  
-  test-html:
-    deps: [test-cov]
-    cmds:
-      - go tool cover -html=test/coverage/coverage.html -o test/coverage/coverage-view.html
-  
-  proto-v1-generate:
-    cmds:
-      - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/v1/domain/*.proto
-      - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/v1/central/*.proto
-      - protoc --grpc-gateway_out=. --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true proto/v1/central/*.proto
-      - protoc --openapiv2_out=. --openapiv2_opt generate_unbound_methods=true proto/v1/central/*.proto
+tasks:
 
-  
-  proto-v1-remove:
+  default:
     cmds:
-      - rm -rf proto/v1/*/*.pb.go
-      - rm -rf proto/v1/*/*.swagger.*
-      - rm -rf proto/v1/*/*gw.go
-
-  run-central:
-    cmds:
-      - go run main.go central
-  
-  run-gw:
-    cmds:
-      - go run main.go gw
-        
-  infra-up:
-    cmds:
-      - docker compose -f deploy/compose/infra.yml up -d
-    
-  infra-down:
-    cmds:
-      - docker compose -f deploy/compose/infra.yml down
+      - task --list-all

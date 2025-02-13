@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+
+  default:
+    vars:
+      ARGS: '{{default "" .ARGS}}'
+    cmds:
+      - go test -v -short {{.ARGS}} ./... 
+
+  integration:
+    vars:
+      ARGS: '{{default "" .ARGS}}'
+    cmds:
+      - go test -v {{.ARGS}} ./... 
+  
+  cov:
+    cmds:
+      - task: test
+        vars: { ARGS: '-cover -coverprofile=test/coverage/coverage.html' }
+  
+  html:
+    deps: [test-cov]
+    cmds:
+      - go tool cover -html=test/coverage/coverage.html -o test/coverage/coverage-view.html
