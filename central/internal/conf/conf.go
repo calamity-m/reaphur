@@ -54,8 +54,9 @@ func NewConfig(debug bool) (*Config, error) {
 	vip.SetDefault("food_redis_db", 0)
 
 	// Spicy bindings
-	vip.BindEnv("ai_token")
-
+	if err := vip.BindEnv("ai_token"); err != nil {
+		return &Config{}, err
+	}
 	// Magic to unamrshal viper into the config sturct. The decode hook is used to map things like the logging level
 	// into the slog logging level type.
 	if err := vip.Unmarshal(&base, viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {

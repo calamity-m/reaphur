@@ -46,9 +46,6 @@ func NewConfig(debug bool) (*Config, error) {
 	vip.SetDefault("reflect", true)
 	vip.SetDefault("central_server_address", bindings.DefaultCentralAddress)
 
-	// Spicy bindings
-	vip.BindEnv("ai_token")
-
 	// Magic to unamrshal viper into the config sturct. The decode hook is used to map things like the logging level
 	// into the slog logging level type.
 	if err := vip.Unmarshal(&base, viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {

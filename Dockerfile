@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build the application from source
-FROM golang:1.23 AS build-stage
+FROM golang:1.24 AS build-stage
 
 RUN useradd -u 10001 nonroot
 
