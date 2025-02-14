@@ -31,8 +31,7 @@ type FoodPersistence interface {
 	// Create a food record entry
 	CreateFood(record FoodRecordEntry) error
 	// Retrieve a single food record based on the
-	// record's uuid. Internal DB primary key is ignored
-	// by this call.
+	// record's uuid.
 	GetFood(uuid uuid.UUID) (FoodRecordEntry, error)
 	// Provided FoodRecordEntry is treated as a filter, allowing
 	// the caller to retrieve multiple food records at will.
