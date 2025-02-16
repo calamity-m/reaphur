@@ -91,6 +91,7 @@ func NewCentralServiceServer(logger *slog.Logger, config *conf.Config, openai *p
 		config:    config,
 		foodStore: foodStore,
 		parser:    openai,
+		fnCaller:  fnCaller,
 	}
 
 	return s, nil
@@ -104,6 +105,9 @@ func (s *CentralServiceServer) commonServiceValidation() error {
 		return errs.ErrNilNotAllowed
 	}
 	if s.parser == nil {
+		return errs.ErrNilNotAllowed
+	}
+	if s.fnCaller == nil {
 		return errs.ErrNilNotAllowed
 	}
 

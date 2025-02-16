@@ -43,7 +43,7 @@ func (s *CentralServiceServer) CallFnUserInput(ctx context.Context, r *centralpr
 		return nil, err
 	}
 
-	out, err := s.fnCaller.EnactUserInput(ctx, fncall.CreateGenericFnCallOutputRequest(r.RequestUserInput), s)
+	out, err := s.fnCaller.EnactUserInput(ctx, fncall.CreateGenericFnCallOutputRequest(r.RequestUserInput, r.RequestUserId), s)
 	if err != nil {
 		s.logger.ErrorContext(ctx, "encountered error calling fn caller", slog.Any("err", err))
 		return nil, err
@@ -51,5 +51,8 @@ func (s *CentralServiceServer) CallFnUserInput(ctx context.Context, r *centralpr
 
 	s.logger.DebugContext(ctx, "received output from fn caller", slog.Any("out", out))
 
-	return nil, errs.ErrNotImplementedYet
+	return &centralproto.CallFnUserInputResponse{
+		ResponseMessage: string(out.Message),
+		Data:            []*centralproto.GenericData{},
+	}, nil
 }
