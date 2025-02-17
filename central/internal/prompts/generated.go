@@ -56,9 +56,9 @@ type FnCreateCardioParameters struct {
 type FnGetFoodParameters struct {
 	// Optional text match query the user wants
 	Query string `json:"query" jsonschema:"required"`
-	// Must be a ISO8601 formatted string. Get all food records after this time
+	// Get all food records after this time
 	AfterTime string `json:"after_time" jsonschema:"required"`
-	// Must be a ISO8601 formatted string. Get all food records before this time
+	// Get all food records before this time
 	BeforeTime string `json:"before_time" jsonschema:"required"`
 }
 

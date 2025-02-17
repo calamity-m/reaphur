@@ -21,8 +21,9 @@ type FnCallOutputRequest struct {
 }
 
 type FnCallOutputResponse struct {
-	Message string `json:"message"`
-	Success bool   `json:"success"`
+	Message string        `json:"message"`
+	Success bool          `json:"success"`
+	Data    []interface{} `json:"data"`
 }
 
 type OpenAIFnCaller struct {
@@ -66,21 +67,30 @@ func (oa *OpenAIFnCaller) handleCreateFood(ctx context.Context, fnReq FnCallOutp
 
 func (oa *OpenAIFnCaller) handleGetFood(ctx context.Context, fnReq FnCallOutputRequest, args prompts.FnGetFoodParameters, food centralproto.CentralFoodServiceServer) FnCallOutputResponse {
 
-	before, err := time.Parse("2006-01-02T15:04:05-0700", args.BeforeTime)
+	// Suffix ending Z if not there
+	if !strings.HasSuffix(args.BeforeTime, "Z") {
+		args.BeforeTime += "Z"
+	}
+	if !strings.HasSuffix(args.AfterTime, "Z") {
+		args.AfterTime += "Z"
+	}
+
+	// time.ParseError {Layout: "2006-01-02T15:04:05Z", Value: "2025-02-18T00:00:00", LayoutElem: "Z", ValueElem: "", Message: ""}
+	before, err := time.Parse("2006-01-02T15:04:05Z", args.BeforeTime)
 	if err != nil {
 		oa.logger.ErrorContext(ctx, "failed parsing before time arg", slog.Any("err", err), slog.Any("args", args))
 		return FnCallOutputResponse{
 			Success: false,
-			Message: "failed to get food records",
+			Message: "sorry i couldnt use that before_time date format",
 		}
 	}
 
-	after, err := time.Parse("2006-01-02T15:04:05-0700", args.AfterTime)
+	after, err := time.Parse("2006-01-02T15:04:05Z", args.AfterTime)
 	if err != nil {
 		oa.logger.ErrorContext(ctx, "failed parsing after time arg", slog.Any("err", err), slog.Any("args", args))
 		return FnCallOutputResponse{
 			Success: false,
-			Message: "failed to get food records",
+			Message: "sorry i couldnt use that after_time date format",
 		}
 	}
 
@@ -108,13 +118,17 @@ func (oa *OpenAIFnCaller) handleGetFood(ctx context.Context, fnReq FnCallOutputR
 		}
 	}
 
-	for _, record := range found.Records {
+	data := make([]interface{}, len(found.Records))
+
+	for i, record := range found.Records {
 		oa.logger.InfoContext(ctx, "found record", slog.Any("record", record))
+		data[i] = record
 	}
 
 	return FnCallOutputResponse{
 		Success: true,
 		Message: fmt.Sprintf("successfully found %d food records", len(found.Records)),
+		Data:    data,
 	}
 }
 
@@ -247,7 +261,7 @@ func CreateGenericFnCallOutputRequest(userInput string, userId string) FnCallOut
 	var inputBuilder strings.Builder
 
 	inputBuilder.WriteString("<extra>")
-	inputBuilder.WriteString(fmt.Sprintf("current date: %s", time.Now()))
+	inputBuilder.WriteString(fmt.Sprintf("date: %s", time.Now().Format(time.DateOnly)))
 	inputBuilder.WriteString("</extra>")
 
 	inputBuilder.WriteString("<input>")
