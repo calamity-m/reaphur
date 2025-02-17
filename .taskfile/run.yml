@@ -9,3 +9,7 @@ tasks:
   gw:
     cmds:
       - go run main.go gw
+  
+  discord:
+    cmds:
+      - go run main.go discord

@@ -15,7 +15,9 @@ import (
 	"github.com/calamity-m/reaphur/central/internal/util"
 	"github.com/calamity-m/reaphur/pkg/bindings"
 	"github.com/calamity-m/reaphur/pkg/logging"
+	centralproto "github.com/calamity-m/reaphur/proto/v1/central"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -79,3 +81,12 @@ var (
 		},
 	}
 )
+
+func NewCentralServiceClient(addr string, opts []grpc.DialOption) (centralproto.CentralServiceClient, *grpc.ClientConn, error) {
+	conn, err := grpc.NewClient(addr, opts...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to dial: %v", err)
+	}
+	client := centralproto.NewCentralServiceClient(conn)
+	return client, conn, nil
+}

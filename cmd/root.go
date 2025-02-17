@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/calamity-m/reaphur/central"
+	"github.com/calamity-m/reaphur/discord"
 	"github.com/calamity-m/reaphur/gw"
 	"github.com/calamity-m/reaphur/pkg/bindings"
 	"github.com/spf13/cobra"
@@ -18,6 +19,7 @@ func Execute() error {
 
 	RootCommand.AddCommand(central.CentralCommand)
 	RootCommand.AddCommand(gw.GRPCGatewayCommand)
+	RootCommand.AddCommand(discord.DiscordBotCommand)
 
 	return RootCommand.Execute()
 }
