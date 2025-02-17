@@ -16,7 +16,7 @@ var (
 )
 
 type FnCreateFoodParameters struct {
-	// User description of the food being created, e.g. chicken parmi with veggies and some other stuff
+	// A generated description of the food that contains some helpful information to make the user happy
 	Description string `json:"description" jsonschema:"required"`
 	// Normalized name of the food being created, e.g. chicken parm and vegetables
 	Name string `json:"name" jsonschema:"required"`
