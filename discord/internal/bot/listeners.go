@@ -48,7 +48,7 @@ func handleDMMessageCreate(bot *DiscordBot) func(e *events.DMMessageCreate) {
 
 		marshalId, err := e.Message.Author.ID.MarshalJSON()
 		if err != nil {
-			bot.logger.ErrorContext(ctx, "Error marshaling snowflake id for user", slog.Any("err", err), slog.Any("id", e.Message.Author.ID))
+			bot.logger.ErrorContext(ctx, "error marshaling snowflake id for user", slog.Any("err", err), slog.Any("id", e.Message.Author.ID))
 			return
 		}
 
@@ -59,7 +59,7 @@ func handleDMMessageCreate(bot *DiscordBot) func(e *events.DMMessageCreate) {
 		}
 		output, err := bot.central.CallFnUserInput(ctx, input)
 		if err != nil {
-			bot.logger.ErrorContext(ctx, "Error marshaling snowflake id for user", slog.Any("err", err), slog.Any("id", e.Message.Author.ID))
+			bot.logger.ErrorContext(ctx, "error calling central fn", slog.Any("err", err), slog.Any("id", e.Message.Author.ID))
 			return
 		}
 		bot.logger.InfoContext(ctx, "got output from central", slog.Any("output", output))
