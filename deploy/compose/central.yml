@@ -7,5 +7,6 @@ services:
       CENTRAL_LOG_STRUCTURED: true 
       CENTRAL_ADDRESS: ":9001"
       CENTRAL_REDIS_ADDRESS: "redis:6379"
+      CENTRAL_AI_TOKEN: ${CENTRAL_AI_TOKEN}
     ports:
       - "9001:9001"

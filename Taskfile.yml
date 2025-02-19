@@ -7,8 +7,8 @@ includes:
     taskfile: ./.taskfile/build.yml
   run:
     taskfile: ./.taskfile/run.yml
-  infra:
-    taskfile: ./.taskfile/infra.yml
+  deploy:
+    taskfile: ./.taskfile/deploy.yml
 
 tasks:
 

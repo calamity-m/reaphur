@@ -1,4 +1,5 @@
 include:
   - central.yml
   - gw.yml
+  - discord.yml
   - infra.yml
