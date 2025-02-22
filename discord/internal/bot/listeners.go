@@ -54,7 +54,7 @@ func handleDMMessageCreate(bot *DiscordBot) func(e *events.DMMessageCreate) {
 
 		// Call the central service and try to run some functions on the user's DM message
 		input := &centralproto.CallFnUserInputRequest{
-			RequestUserId:    uuid.NewSHA1(uuid.Nil, marshalId).String(),
+			RequestUserId:    uuid.NewSHA1(uuid.NameSpaceURL, marshalId).String(),
 			RequestUserInput: e.Message.Content,
 		}
 		output, err := bot.central.CallFnUserInput(ctx, input)
