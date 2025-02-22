@@ -4,3 +4,4 @@ services:
     command: tail -f /dev/null
     container_name: curl
     tty: true
+    profiles: [debug]

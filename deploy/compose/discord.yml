@@ -1,9 +1,9 @@
 services:
   discord:
-    image: reaphur:latest
+    image: ${REAPHUR_IMAGE:-ghcr.io/calamity-m/reaphur:latest}
     command: discord
     container_name: discord
     environment:
       DISOCRD_LOG_STRUCTURED: true 
       DISCORD_CENTRAL_SERVER_ADDRESS: "central:9001"
-      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_BOT_TOKEN: "${DISCORD_BOT_TOKEN:?Discord token not set}"

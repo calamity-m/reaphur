@@ -1,12 +1,12 @@
 services:
   central:
-    image: reaphur:latest
+    image: ${REAPHUR_IMAGE:-ghcr.io/calamity-m/reaphur:latest}
     command: central
     container_name: central
     environment:
       CENTRAL_LOG_STRUCTURED: true 
       CENTRAL_ADDRESS: ":9001"
       CENTRAL_REDIS_ADDRESS: "redis:6379"
-      CENTRAL_AI_TOKEN: ${CENTRAL_AI_TOKEN}
+      CENTRAL_AI_TOKEN: "${CENTRAL_AI_TOKEN:?Central token not set}"
     ports:
       - "9001:9001"

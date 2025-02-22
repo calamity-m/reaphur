@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis/redis-stack:latest
+    image: ${REDIS_IAMGE:-redis/redis-stack:latest}
     restart: always
     container_name: redis
     ports:
@@ -11,6 +11,7 @@ services:
     environment:
       REDIS_PORT: 6379
       REDIS_ARGS: --requirepass ${REDIS_PASSWORD:-password}
+    
 
 volumes:
   redis-data:

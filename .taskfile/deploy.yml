@@ -8,8 +8,6 @@ tasks:
 
   up:
     cmds:
-      - "${CENTRAL_AI_TOKEN:?Central token not set}"
-      - "${DISCORD_BOT_TOKEN:?Central token not set}"
       - docker compose -f deploy/compose/compose.yml up -d
   
   down:

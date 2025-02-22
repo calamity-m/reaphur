@@ -1,6 +1,6 @@
 services:
   gw:
-    image: reaphur:latest
+    image: ${REAPHUR_IMAGE:-ghcr.io/calamity-m/reaphur:latest}
     command: gw
     container_name: gw
     environment:
@@ -9,3 +9,4 @@ services:
       GW_CENTRAL_SERVER_ADDRESS: "central:9001"
     ports:
       - "9002:9002"
+

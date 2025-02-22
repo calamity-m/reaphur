@@ -3,3 +3,4 @@ include:
   - gw.yml
   - discord.yml
   - infra.yml
+  - curl.yml
