@@ -27,7 +27,7 @@ jobs:
 
       # Install the cosign tool
       - name: Install cosign
-        uses: sigstore/cosign-installer@3.8.0
+        uses: sigstore/cosign-installer@v3.8.0
         with:
           cosign-release: 'v2.4.2'
 
