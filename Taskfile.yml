@@ -14,6 +14,6 @@ includes:
 
 tasks:
 
-  default:
+  list:
     cmds:
       - task --list-all

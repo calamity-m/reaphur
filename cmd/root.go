@@ -17,6 +17,9 @@ var RootCommand = &cobra.Command{
 func Execute() error {
 	RootCommand.PersistentFlags().BoolVarP(&bindings.Debug, "debug", "d", false, "Force debug")
 
+	// Central has some sub commands
+	central.CentralCommand.AddCommand(central.CentralGenerateSchemaCommand)
+
 	RootCommand.AddCommand(central.CentralCommand)
 	RootCommand.AddCommand(gw.GRPCGatewayCommand)
 	RootCommand.AddCommand(discord.DiscordBotCommand)

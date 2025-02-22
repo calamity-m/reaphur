@@ -16,6 +16,15 @@ func EncodeJSON[T any](val T) (string, error) {
 	return w.String(), nil
 }
 
+func EncodeJSONArr[T any](arr []T) (string, error) {
+	w := bytes.Buffer{}
+	if err := json.NewEncoder(&w).Encode(arr); err != nil {
+		return "", fmt.Errorf("failed encoding json: %w", err)
+	}
+
+	return w.String(), nil
+}
+
 func DecodeJSON[T any](barray []byte) (T, error) {
 	var val T
 

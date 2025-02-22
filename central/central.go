@@ -11,6 +11,7 @@ import (
 	"github.com/calamity-m/reaphur/central/internal/fncall"
 	"github.com/calamity-m/reaphur/central/internal/parser"
 	"github.com/calamity-m/reaphur/central/internal/persistence"
+	"github.com/calamity-m/reaphur/central/internal/prompts"
 	"github.com/calamity-m/reaphur/central/internal/srv"
 	"github.com/calamity-m/reaphur/central/internal/util"
 	"github.com/calamity-m/reaphur/pkg/bindings"
@@ -78,6 +79,15 @@ var (
 			}
 
 			return nil
+		},
+	}
+
+	CentralGenerateSchemaCommand = &cobra.Command{
+		Use:   "generate",
+		Short: "generate schemas",
+		Long:  `generate function schemas for use with smarty pants services`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return prompts.GenerateSchemas()
 		},
 	}
 )

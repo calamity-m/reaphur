@@ -13,7 +13,7 @@ RUN go mod download
 COPY . ./
 
 # Run the tests
-RUN CGO_ENABLED=0 go test -v -short ./... --cover
+RUN CGO_ENABLED=0 go test -v -short ./... 
 
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o /reaphur
