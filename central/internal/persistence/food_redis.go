@@ -229,7 +229,7 @@ func NewRedisFoodStore(logger *slog.Logger, conf *conf.Config) (*RedisFoodStore,
 	}
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     conf.FoodRedisAddress,
+		Addr:     conf.RedisAddress,
 		Password: conf.FoodRedisPassword,
 		DB:       conf.FoodRedisDB,
 		Protocol: 2,

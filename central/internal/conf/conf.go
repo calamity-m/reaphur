@@ -19,9 +19,9 @@ type Config struct {
 	LogRequestId  bool       `mapstructure:"log_request_id" json:"log_request_id,omitempty"`
 
 	// Server configuration
-	Address          string `mapstructure:"address" json:"address,omitempty"`
-	Reflect          bool   `mapstructure:"reflect" json:"reflect,omitempty"`
-	FoodRedisAddress string `mapstructure:"food_redis_address" json:"food_redis_address,omitempty"`
+	Address      string `mapstructure:"address" json:"address,omitempty"`
+	Reflect      bool   `mapstructure:"reflect" json:"reflect,omitempty"`
+	RedisAddress string `mapstructure:"redis_address" json:"redis_address,omitempty"`
 
 	// Spicy
 	AIToken           string `mapstructure:"ai_token" json:"-"`
@@ -50,6 +50,7 @@ func NewConfig(debug bool) (*Config, error) {
 	vip.SetDefault("log_request_id", true)
 	vip.SetDefault("address", bindings.DefaultCentralAddress)
 	vip.SetDefault("reflect", true)
+	vip.SetDefault("redis_address", bindings.DefaultRedisAddress)
 	vip.SetDefault("food_redis_password", "password")
 	vip.SetDefault("food_redis_db", 0)
 

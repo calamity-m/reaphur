@@ -65,14 +65,6 @@ func (s *CentralServiceServer) Run(notify <-chan os.Signal) <-chan error {
 		s.logger.Error(fmt.Sprintf("failed to listen on: %q", s.config.Address), slog.Any("err", err))
 	}
 
-	s.logger.Info(
-		"Server has follwing configuration",
-		slog.String("environment", s.config.Environment),
-		slog.Bool("reflection", s.config.Reflect),
-		slog.String("log_level", s.config.LogLevel.String()),
-		slog.Bool("log_structured", s.config.LogStructured),
-		slog.Bool("log_request_id", s.config.LogRequestId),
-	)
 	s.logger.Info(fmt.Sprintf("Starting server on %s", s.config.Address))
 	if err := grpcServer.Serve(listener); err != nil {
 		exit <- fmt.Errorf("failed to start/close sow server due to: %w", err)

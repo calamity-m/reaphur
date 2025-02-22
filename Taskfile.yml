@@ -9,8 +9,8 @@ includes:
     taskfile: ./.taskfile/build.yml
   run:
     taskfile: ./.taskfile/run.yml
-  deploy:
-    taskfile: ./.taskfile/deploy.yml
+  compose:
+    taskfile: ./.taskfile/compose-tasks.yml
 
 tasks:
 

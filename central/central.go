@@ -45,6 +45,20 @@ var (
 				},
 			}))
 
+			// Display some helpful starting info
+			logger.Info(fmt.Sprintf("Redis Address: %s", cfg.RedisAddress))
+			logger.Info(fmt.Sprintf("GRPC Reflection: %t", cfg.Reflect))
+			logger.Info(fmt.Sprintf("Environment: %s", cfg.Environment))
+
+			// Display schemas
+			logger.Debug(
+				"scheams",
+				slog.String("create_food", prompts.CreateCardioJson),
+				slog.String("create_weight_lifting", prompts.CreateWeightLiftingJson),
+				slog.String("create_cardio", prompts.CreateCardioJson),
+				slog.String("get_food", prompts.GetFoodJson),
+			)
+
 			oa := util.CreateNewOpenAIClient(cfg.AIToken)
 			foodStore, err := persistence.NewRedisFoodStore(logger, cfg)
 			if err != nil {

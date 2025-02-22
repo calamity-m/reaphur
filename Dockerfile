@@ -26,6 +26,8 @@ WORKDIR /
 COPY --from=build-stage /reaphur /reaphur
 
 COPY --from=0 /etc/passwd /etc/passwd
+COPY --from=0 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
 USER nonroot
 
 ENTRYPOINT ["/reaphur"]
