@@ -174,6 +174,8 @@ func (r *RedisFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error) 
 	// Ignore time filters and run them on returned results. :^)
 	query := queryBuilder.String()
 
+	r.logger.Debug("using filter and query to retrieve food records", slog.String("query", query), slog.Any("filter", filter))
+
 	ctx := context.Background()
 	res, err := r.rdb.FTSearchWithArgs(
 		ctx,
@@ -205,6 +207,18 @@ func (r *RedisFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error) 
 		if err != nil {
 			r.logger.Error("failed mapping redis to food record", slog.Any("err", err), slog.Any("scanned", scanned))
 			return nil, errs.ErrInternal
+		}
+
+		if !filter.AfterTime.IsZero() {
+			if rtn.Created.Before(filter.AfterTime) {
+				continue
+			}
+		}
+
+		if !filter.BeforeTime.IsZero() {
+			if rtn.Created.After(filter.BeforeTime) {
+				continue
+			}
 		}
 
 		results[i] = rtn
