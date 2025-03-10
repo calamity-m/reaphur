@@ -8,7 +8,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/invopop/jsonschema v0.13.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/openai/openai-go v0.1.0-alpha.59
+	github.com/openai/openai-go v0.1.0-alpha.62
 	github.com/redis/go-redis/v9 v9.7.1
 	github.com/sagikazarmark/slog-shim v0.1.0
 	github.com/spf13/cobra v1.9.1
@@ -43,7 +43,6 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.34.0 // indirect
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
