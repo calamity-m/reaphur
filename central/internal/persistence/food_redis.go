@@ -181,8 +181,12 @@ func (r *RedisFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error) 
 		ctx,
 		"idx:food",
 		query,
-		&redis.FTSearchOptions{},
+		&redis.FTSearchOptions{Limit: 100},
 	).Result()
+
+	if len(res.Docs) < res.Total {
+		r.logger.Error(fmt.Sprintf("total greater than returned docs - %d total, %d returned", res.Total, len(res.Docs)), slog.Int("limit", 100))
+	}
 
 	if err != nil {
 		r.logger.Error("encountered err", slog.Any("res", res), slog.Any("filter", filter))
@@ -194,9 +198,9 @@ func (r *RedisFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error) 
 		return nil, errs.ErrNotFound
 	}
 
-	results := make([]FoodRecordEntry, res.Total)
+	results := make([]FoodRecordEntry, 0)
 
-	for i, doc := range res.Docs {
+	for _, doc := range res.Docs {
 		scanned, err := serr.DecodeJSONS[redisRecord](doc.Fields["$"])
 		if err != nil {
 			r.logger.Error("failed scanning document from redis", slog.Any("err", err), slog.Any("res", res))
@@ -221,7 +225,7 @@ func (r *RedisFoodStore) GetFoods(filter FoodFilter) ([]FoodRecordEntry, error) 
 			}
 		}
 
-		results[i] = rtn
+		results = append(results, rtn)
 	}
 
 	return results, nil

@@ -3,6 +3,7 @@ package bot
 import (
 	"context"
 	"log/slog"
+	"strings"
 
 	centralproto "github.com/calamity-m/reaphur/proto/v1/central"
 	"github.com/disgoorg/disgo/bot"
@@ -64,20 +65,44 @@ func handleDMMessageCreate(bot *DiscordBot) func(e *events.DMMessageCreate) {
 		}
 		bot.logger.InfoContext(ctx, "got output from central", slog.Any("output", output))
 
-		// Create response message to the user's DM channel
-		msg, err := e.Client().Rest().CreateMessage(
-			e.ChannelID,
-			discord.NewMessageCreateBuilder().SetContentf(
-				"%s",
-				output.ResponseMessage,
-			).Build(),
-		)
-		if err != nil {
-			bot.logger.ErrorContext(ctx, "failed to create message", slog.Any("err", err), slog.Any("event", e))
-			return
+		if len(output.ResponseMessage) > 2000 {
+			bot.logger.ErrorContext(ctx, "RESPONSE MESSAGE LENGTH REACHED", slog.Int("length", len(output.ResponseMessage)))
+
+			// Okay this is kinda stupid but I'll try it for now, see how bad it is
+			msgs := strings.Split(output.ResponseMessage, "\n")
+
+			for _, msg := range msgs {
+				// Create response message to the user's DM channel
+				sent, err := e.Client().Rest().CreateMessage(
+					e.ChannelID,
+					discord.NewMessageCreateBuilder().SetContentf(
+						"%s",
+						msg,
+					).Build(),
+				)
+				if err != nil {
+					bot.logger.ErrorContext(ctx, "failed to create message", slog.Any("err", err), slog.Any("event", e))
+					return
+				}
+				bot.logger.DebugContext(ctx, "created message successfully", slog.Any("msg", sent))
+			}
+
+		} else {
+			// Create response message to the user's DM channel
+			sent, err := e.Client().Rest().CreateMessage(
+				e.ChannelID,
+				discord.NewMessageCreateBuilder().SetContentf(
+					"%s",
+					output.ResponseMessage,
+				).Build(),
+			)
+			if err != nil {
+				bot.logger.ErrorContext(ctx, "failed to create message", slog.Any("err", err), slog.Any("event", e))
+				return
+			}
+			bot.logger.DebugContext(ctx, "created message successfully", slog.Any("msg", sent))
 		}
 
-		bot.logger.DebugContext(ctx, "created message successfully", slog.Any("msg", msg))
 		bot.logger.InfoContext(ctx, "DM_MESSAGE_CREATE Finished")
 	}
 }
