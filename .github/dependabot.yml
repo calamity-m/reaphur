@@ -7,6 +7,15 @@ updates:
     # Check for updates once a week
     schedule:
       interval: "weekly"
+    groups:
+      go-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      go-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -15,3 +24,4 @@ updates:
     # Check for updates once a month
     schedule:
       interval: "monthly"
+
