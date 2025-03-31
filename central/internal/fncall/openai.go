@@ -146,17 +146,12 @@ func (oa *OpenAIFnCaller) EnactUserInput(ctx context.Context, r FnCallOutputRequ
 
 	// Create first chat interaction to discover which food input to use
 	params := openai.ChatCompletionNewParams{
-		Model: openai.F(oa.model),
-		Tools: openai.F(tools),
-		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-			openai.ChatCompletionDeveloperMessageParam{
-				Role: openai.F(openai.ChatCompletionDeveloperMessageParamRoleDeveloper),
-				Content: openai.F([]openai.ChatCompletionContentPartTextParam{
-					openai.TextPart(prompts.CENTRAL_PROMPT),
-				}),
-			},
+		Model: oa.model,
+		Tools: tools,
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.DeveloperMessage(prompts.CENTRAL_PROMPT),
 			openai.UserMessage(r.UserInput),
-		}),
+		},
 	}
 
 	completion, err := oa.client.Chat.Completions.New(ctx, params)
@@ -176,7 +171,7 @@ func (oa *OpenAIFnCaller) EnactUserInput(ctx context.Context, r FnCallOutputRequ
 	}
 
 	// Append the response message from openai to the chain of conversation
-	params.Messages.Value = append(params.Messages.Value, completion.Choices[0].Message)
+	params.Messages = append(params.Messages, completion.Choices[0].Message.ToParam())
 
 	// Evaluate the functions
 	for _, call := range toolCalls {
@@ -193,11 +188,11 @@ func (oa *OpenAIFnCaller) EnactUserInput(ctx context.Context, r FnCallOutputRequ
 
 			resp, err := serr.EncodeJSON(record)
 			if err != nil {
-				params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, failedToolCallMessage))
+				params.Messages = append(params.Messages, openai.ToolMessage(call.ID, failedToolCallMessage))
 				break
 			}
 
-			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, resp))
+			params.Messages = append(params.Messages, openai.ToolMessage(call.ID, resp))
 		case getFoodName:
 			// GET FOOD FUNCTION
 			args, err := serr.DecodeJSONS[prompts.FnGetFoodParameters](call.Function.Arguments)
@@ -210,36 +205,36 @@ func (oa *OpenAIFnCaller) EnactUserInput(ctx context.Context, r FnCallOutputRequ
 
 			resp, err := serr.EncodeJSON(record)
 			if err != nil {
-				params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, failedToolCallMessage))
+				params.Messages = append(params.Messages, openai.ToolMessage(call.ID, failedToolCallMessage))
 				break
 			}
 
-			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, resp))
+			params.Messages = append(params.Messages, openai.ToolMessage(call.ID, resp))
 		case createWeightLiftingName:
 			resp, err := serr.EncodeJSON(FnCallOutputResponse{Success: false, Message: "weight lifting not yet completed, sorry"})
 			if err != nil {
-				params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, failedToolCallMessage))
+				params.Messages = append(params.Messages, openai.ToolMessage(call.ID, failedToolCallMessage))
 				break
 			}
 
-			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, resp))
+			params.Messages = append(params.Messages, openai.ToolMessage(call.ID, resp))
 		case createCardioName:
 			resp, err := serr.EncodeJSON(FnCallOutputResponse{Success: false, Message: "cardio logging not yet completed, sorry"})
 			if err != nil {
-				params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, failedToolCallMessage))
+				params.Messages = append(params.Messages, openai.ToolMessage(call.ID, failedToolCallMessage))
 				break
 			}
 
-			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, resp))
+			params.Messages = append(params.Messages, openai.ToolMessage(call.ID, resp))
 		default:
 			// UNMATCHED FUNCTIONS
 			errResp, err := serr.EncodeJSON(FnCallOutputResponse{Success: false, Message: "unmatched"})
 			if err != nil {
-				params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, failedToolCallMessage))
+				params.Messages = append(params.Messages, openai.ToolMessage(call.ID, failedToolCallMessage))
 				break
 			}
 
-			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(call.ID, errResp))
+			params.Messages = append(params.Messages, openai.ToolMessage(call.ID, errResp))
 		}
 	}
 
