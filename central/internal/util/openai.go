@@ -10,5 +10,5 @@ func CreateNewOpenAIClient(token string) *openai.Client {
 		option.WithAPIKey(token),
 	)
 
-	return client
+	return &client
 }

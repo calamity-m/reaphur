@@ -17,57 +17,57 @@ const (
 
 func CreateFoodParam() (openai.FunctionDefinitionParam, error) {
 	return openai.FunctionDefinitionParam{
-		Name:        openai.String(createFoodName),
+		Name:        createFoodName,
 		Description: openai.String("log food entry in diary with supplied details"),
 		Strict:      openai.Bool(true),
-		Parameters: openai.F(openai.FunctionParameters{
+		Parameters: openai.FunctionParameters{
 			"type":                 "object",
 			"properties":           prompts.CreateFoodProperties,
 			"required":             prompts.CreateFoodRequired,
 			"additionalProperties": openai.Bool(false),
-		}),
+		},
 	}, nil
 }
 
 func CreateWeightLiftingParam() (openai.FunctionDefinitionParam, error) {
 	return openai.FunctionDefinitionParam{
-		Name:        openai.String(createWeightLiftingName),
+		Name:        createWeightLiftingName,
 		Description: openai.String("log weight lifting session in diary with supplied details"),
 		Strict:      openai.Bool(true),
-		Parameters: openai.F(openai.FunctionParameters{
+		Parameters: openai.FunctionParameters{
 			"type":                 "object",
 			"properties":           prompts.CreateWeightLiftingProperties,
 			"required":             prompts.CreateWeightLiftingRequired,
 			"additionalProperties": openai.Bool(false),
-		}),
+		},
 	}, nil
 }
 
 func CreateCardioParam() (openai.FunctionDefinitionParam, error) {
 	return openai.FunctionDefinitionParam{
-		Name:        openai.String(createCardioName),
+		Name:        createCardioName,
 		Description: openai.String("log cardio workout in diary with supplied details"),
 		Strict:      openai.Bool(true),
-		Parameters: openai.F(openai.FunctionParameters{
+		Parameters: openai.FunctionParameters{
 			"type":                 "object",
 			"properties":           prompts.CreateCardioProperties,
 			"required":             prompts.CreateCardioRequired,
 			"additionalProperties": openai.Bool(false),
-		}),
+		},
 	}, nil
 }
 
 func GetFoodParam() (openai.FunctionDefinitionParam, error) {
 	return openai.FunctionDefinitionParam{
-		Name:        openai.String(getFoodName),
+		Name:        getFoodName,
 		Description: openai.String("retrieves food entries from the diary"),
 		Strict:      openai.Bool(true),
-		Parameters: openai.F(openai.FunctionParameters{
+		Parameters: openai.FunctionParameters{
 			"type":                 "object",
 			"properties":           prompts.GetFoodProperties,
 			"required":             prompts.GetFoodRequired,
 			"additionalProperties": openai.Bool(false),
-		}),
+		},
 	}, nil
 }
 
@@ -95,20 +95,16 @@ func GetChatCompletionToolParamList() ([]openai.ChatCompletionToolParam, error) 
 
 	parr := []openai.ChatCompletionToolParam{
 		{
-			Type:     openai.F(openai.ChatCompletionToolTypeFunction),
-			Function: openai.F(createFoodFn),
+			Function: createFoodFn,
 		},
 		{
-			Type:     openai.F(openai.ChatCompletionToolTypeFunction),
-			Function: openai.F(getFoodFn),
+			Function: getFoodFn,
 		},
 		{
-			Type:     openai.F(openai.ChatCompletionToolTypeFunction),
-			Function: openai.F(createWeightFn),
+			Function: createWeightFn,
 		},
 		{
-			Type:     openai.F(openai.ChatCompletionToolTypeFunction),
-			Function: openai.F(createCardioFn),
+			Function: createCardioFn,
 		},
 	}
 
